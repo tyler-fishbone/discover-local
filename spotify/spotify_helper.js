@@ -1,12 +1,12 @@
 var request = require('request');
+// try refactoring with async await instead:
+// https://medium.com/hackernoon/6-reasons-why-javascripts-async-await-blows-promises-away-tutorial-c7ec10518dd9
 
 module.exports = {
   exclamate: (inputString) => {
     return inputString + '!';
   },
 
-  // try refactoring with async await instead:
-  // https://medium.com/hackernoon/6-reasons-why-javascripts-async-await-blows-promises-away-tutorial-c7ec10518dd9
   getArtistIdByName: (token, inputName) => {
     let promise = new Promise((resolve, reject) => {
       request.get(`https://api.spotify.com/v1/search?q=${inputName}&type=artist`, {
@@ -34,7 +34,7 @@ module.exports = {
     return promise;
   },
 
-  getArtistTopTracks: (token, artistId, numTracks = 5) => {
+  getArtistTopTracks: (token, artistId, numTracks = 3) => {
     const promise = new Promise((resolve, reject) => {
       request.get(
         `https://api.spotify.com/v1/artists/${artistId}/top-tracks?market=us`, {

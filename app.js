@@ -13,13 +13,15 @@ const moment = require('moment');
 const dotenv = require('dotenv')
 dotenv.config();
 
-const sptfyClient = require('./spotify_client');
-
 const client_id = process.env.CLIENT_ID; // Your client id
 const client_secret = process.env.CLIENT_SECRET; // Your secret
 const redirect_uri = process.env.REDIRECT_URI; // Your redirect uri
-let access_token = '';
+let spotify_access_token = '';
 
+// const sk_api_key = process.env.SONGKICK_API_KEY
+
+const sptfyClient = require('./spotify/spotify_client');
+// const skClient = require('./songkick/songkick_client')
 /**
  * Generates a random string containing numbers and letters
  * @param  {number} length The length of the string
@@ -94,12 +96,12 @@ app.get('/callback', function(req, res) {
     request.post(authOptions, function(error, response, body) {
       if (!error && response.statusCode === 200) {
 
-        access_token = body.access_token
+        spotify_access_token = body.access_token
         var refresh_token = body.refresh_token;
 
         var options = {
           url: 'https://api.spotify.com/v1/me',
-          headers: { 'Authorization': 'Bearer ' + access_token },
+          headers: { 'Authorization': 'Bearer ' + spotify_access_token },
           json: true
         };
 
@@ -108,12 +110,12 @@ app.get('/callback', function(req, res) {
           console.log(body);
         });
 
-        console.log(`access_token: ${access_token}`);
+        console.log(`spotify_access_token: ${spotify_access_token}`);
 
         // we can also pass the token to the browser to make requests from there
         res.redirect('/#' +
           querystring.stringify({
-            access_token: access_token,
+            access_token: spotify_access_token,
             refresh_token: refresh_token
           }));
       } else {
@@ -156,50 +158,15 @@ app.get('/test_endpoint', function(req, res) {
   res.send(`test endpoint response: ${counter}`);
 })
 
-app.get('/add_song', (req, res) => {
-  counter++;
-  console.log(`hit /add_song: ${counter}`);
-
-  const playlistId = '3qDz3bBo6XaswehrDoKgYy'
-  request.post(`https://api.spotify.com/v1/playlists/${playlistId}/tracks`, {
-    'auth': {
-      'bearer': access_token,
-    },
-    'Content-Type': 'application/json',
-    'body': JSON.stringify({
-      'uris': ['spotify:track:2oSMcZnGARuxk10qd6AXrT'],
-    }),
-  }, (error, response, body) => {
-    res.send(response);
-  })
-})
-
 app.get('/search_artist', async (req, res) => {
   counter++;
   console.log(`hit /search_artist: ${counter}`);
 
   try {
-    const artistId = await sptfyClient.getArtistIdByName(access_token, 'fujitsu')
+    const artistId = await sptfyClient.getArtistIdByName(spotify_access_token, 'fujitsu')
     res.send(artistId);
   } catch (error) {
     res.send(error)
-  }
-})
-
-app.get('/get_fujitsu_top_tracks', async (req, res) => {
-  counter++;
-  console.log(`hit /get_fujitsu_top_tracks: ${counter}`)
-
-  try {
-    const playlistId = '3qDz3bBo6XaswehrDoKgYy'
-    const artistId = await sptfyClient.getArtistIdByName(access_token, 'fujitsu')
-    const topTracks = await sptfyClient.getArtistTopTracks(access_token, artistId);
-    const trackUris = sptfyClient.getTrackUrisFromTrackObjects(topTracks)
-    const addTracksToPlaylistResponse = 
-      await sptfyClient.addTracksToPlaylist(access_token, trackUris, playlistId);
-    res.send(addTracksToPlaylistResponse);
-  } catch (error) {
-    res.send(error);
   }
 })
 
@@ -209,7 +176,7 @@ app.get('/get_song', (req, res) => {
 
   request.get('https://api.spotify.com/v1/tracks/4iV5W9uYEdYUVa79Axb7Rh', {
     'auth': {
-      'bearer': access_token,
+      'bearer': spotify_access_token,
     }
   }, (error, response, body) => {
     res.send(response);
@@ -221,7 +188,7 @@ app.get('/get_playlist', (req, res) => {
   console.log(`hit /get_playlist: ${counter}`);
   request.get('https://api.spotify.com/v1/playlists/3qDz3bBo6XaswehrDoKgYy', {
     'auth': {
-      'bearer': access_token,
+      'bearer': spotify_access_token,
     }
   }, (error, response, body) => {
     res.send(response);
@@ -235,7 +202,7 @@ app.get('/rename_playlist', (req, res) => {
   const newName = moment().valueOf();
   request.put('https://api.spotify.com/v1/playlists/3qDz3bBo6XaswehrDoKgYy', {
     'auth': {
-      'bearer': access_token,
+      'bearer': spotify_access_token,
     },
     'Content-Type': 'application/json',
     'body': JSON.stringify({
@@ -245,6 +212,43 @@ app.get('/rename_playlist', (req, res) => {
     res.send(response);
   });
 })
+
+
+app.get('/get_fujitsu_top_tracks', async (req, res) => {
+  counter++;
+  console.log(`hit /get_fujitsu_top_tracks: ${counter}`)
+
+  try {
+
+    const playlistId = '3qDz3bBo6XaswehrDoKgYy'
+    const artistName = 'fujitsu'
+    const response = 
+      await sptfyClient.findArtistAndAddTopTracksToPlaylist(
+        spotify_access_token, artistName, playlistId
+    )
+    res.send(response)
+
+  } catch (error) {
+    res.send(error)
+  }
+})
+
+// app.get('/add_artists_from_crocodile_to_playlist', async (req, res) => {
+//   counter++
+//   console.log(`hit /add_artists_from_crocodile_to_playlist: ${counter}`)
+
+//   const inputVenueName = 'The Crocodile';
+
+//   try {
+//     const venueId = await skClient.getVenueIdFromName(sk_api_key, inputVenueName)
+//     const performances = 
+//       await skClient.getUpcomingPerformancesForVenue(sk_api_key, venueId, minDate, maxDate)
+//     const artists = skClient.parseArtistsFromPerformanceData
+
+//   } catch (error) {
+//     res.send(error)
+//   }
+// })
 
 console.log('Listening on 8888');
 app.listen(8888);

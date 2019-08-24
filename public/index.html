@@ -31,7 +31,6 @@
         <button class="btn btn-default" id="alert-test-button">Alert test</button>
         <button class="btn btn-default" id="server-console-log-button">Server Console Log</button>
         <div>
-          <button class="btn btn-default" id="add-song-button">Add Song</button>
           <button class="btn btn-default" id="get-song-button">Get Song</button>
         </div>
         <div>
@@ -153,14 +152,6 @@
           })
           document.getElementById('server-console-log-button').addEventListener('click', function() {
             $.get('/test_endpoint', data => console.log(`data ${data}`));
-          })
-          document.getElementById('add-song-button').addEventListener('click', function() {
-            $.get('/add_song', data => {
-              if (data.body) {
-                data.body = JSON.parse(data.body);
-              }
-              console.log(data)
-            });
           })
           document.getElementById('get-song-button').addEventListener('click', function() {
             $.get('/get_song', data => {

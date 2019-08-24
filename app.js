@@ -1,23 +1,25 @@
 /**
- * This is an example of a basic node.js script that performs
- * the Authorization Code oAuth2 flow to authenticate against
- * the Spotify Accounts.
- *
- * For more information, read
+ * For more information on the Authorization Code oAuth2 flow to 
+ * authenticate against the Spotify Accounts visit:
  * https://developer.spotify.com/web-api/authorization-guide/#authorization_code_flow
  */
 
-var express = require('express'); // Express web server framework
-var request = require('request'); // "Request" library
-var cors = require('cors');
-var querystring = require('querystring');
-var cookieParser = require('cookie-parser');
-var moment = require('moment');
-var sptfyClient = require('./spotify_client');
+const express = require('express'); // Express web server framework
+const request = require('request'); // "Request" library
+const cors = require('cors');
+const querystring = require('querystring');
+const cookieParser = require('cookie-parser');
+const moment = require('moment');
+const dotenv = require('dotenv')
+dotenv.config();
 
-//vars here
+const sptfyClient = require('./spotify_client');
 
+const client_id = process.env.CLIENT_ID; // Your client id
+const client_secret = process.env.CLIENT_SECRET; // Your secret
+const redirect_uri = process.env.REDIRECT_URI; // Your redirect uri
 let access_token = '';
+
 /**
  * Generates a random string containing numbers and letters
  * @param  {number} length The length of the string
@@ -33,7 +35,7 @@ var generateRandomString = function(length) {
   return text;
 };
 
-var stateKey = 'spotify_auth_state';
+const stateKey = 'spotify_auth_state';
 
 var app = express();
 

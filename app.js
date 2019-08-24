@@ -18,10 +18,10 @@ const client_secret = process.env.CLIENT_SECRET; // Your secret
 const redirect_uri = process.env.REDIRECT_URI; // Your redirect uri
 let spotify_access_token = '';
 
-// const sk_api_key = process.env.SONGKICK_API_KEY
+const sk_api_key = process.env.SONGKICK_API_KEY
 
 const sptfyClient = require('./spotify/spotify_client');
-// const skClient = require('./songkick/songkick_client')
+const skClient = require('./songkick/songkick_client')
 /**
  * Generates a random string containing numbers and letters
  * @param  {number} length The length of the string
@@ -233,22 +233,26 @@ app.get('/get_fujitsu_top_tracks', async (req, res) => {
   }
 })
 
-// app.get('/add_artists_from_crocodile_to_playlist', async (req, res) => {
-//   counter++
-//   console.log(`hit /add_artists_from_crocodile_to_playlist: ${counter}`)
+app.get('/get_artists_playing_at_the_crocodile', async (req, res) => {
+  counter++
+  console.log(`hit /get_artists_playing_at_the_crocodile: ${counter}`)
 
-//   const inputVenueName = 'The Crocodile';
+  const inputVenueName = 'The Crocodile'
+  const minDate = moment().add(7, 'days').format('YYYY-MM-DD')
+  const maxDate = moment().add(21, 'days').format('YYYY-MM-DD')
 
-//   try {
-//     const venueId = await skClient.getVenueIdFromName(sk_api_key, inputVenueName)
-//     const performances = 
-//       await skClient.getUpcomingPerformancesForVenue(sk_api_key, venueId, minDate, maxDate)
-//     const artists = skClient.parseArtistsFromPerformanceData
+  try {
+    const response =
+      await skClient.getUpcomingArtistsPlayingInVenue(
+        sk_api_key, inputVenueName, minDate, maxDate
+      )
+    
+    res.send(response)
 
-//   } catch (error) {
-//     res.send(error)
-//   }
-// })
+  } catch (error) {
+    res.send(error)
+  }
+})
 
 console.log('Listening on 8888');
 app.listen(8888);

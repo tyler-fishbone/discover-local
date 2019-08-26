@@ -144,9 +144,9 @@ app.get('/refresh_token', function(req, res) {
 
   request.post(authOptions, function(error, response, body) {
     if (!error && response.statusCode === 200) {
-      access_token = body.access_token;
+      spotify_access_token = body.access_token;
       res.send({
-        'access_token': access_token
+        'access_token': spotify_access_token
       });
     }
   });
@@ -156,18 +156,6 @@ app.get('/test_endpoint', function(req, res) {
   counter++;
   console.log(`test endpoint hit: ${counter}`);
   res.send(`test endpoint response: ${counter}`);
-})
-
-app.get('/search_artist', async (req, res) => {
-  counter++;
-  console.log(`hit /search_artist: ${counter}`);
-
-  try {
-    const artistId = await sptfyClient.getArtistIdByName(spotify_access_token, 'fujitsu')
-    res.send(artistId);
-  } catch (error) {
-    res.send(error)
-  }
 })
 
 app.get('/get_song', (req, res) => {
@@ -214,9 +202,9 @@ app.get('/rename_playlist', (req, res) => {
 })
 
 
-app.get('/get_fujitsu_top_tracks', async (req, res) => {
+app.get('/add_fujitsu_top_tracks', async (req, res) => {
   counter++;
-  console.log(`hit /get_fujitsu_top_tracks: ${counter}`)
+  console.log(`hit /add_fujitsu_top_tracks: ${counter}`)
 
   try {
 

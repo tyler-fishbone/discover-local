@@ -38,8 +38,7 @@
           <button class="btn btn-default" id="rename-playlist-button">Rename Playlist</button>
         </div>
         <div>
-          <button class="btn btn-default" id="search-artist-button">Search Artist</button>
-          <button class="btn btn-default" id="get-fujitsu-top-tracks-button">Get Fujitsu Top Tracks</button>
+          <button class="btn btn-default" id="add-fujitsu-top-tracks-button">Add Fujitsu Top Tracks</button>
         </div>
         <div>
           <button class="btn btn-default" id="get-artists-playing-at-the-crocodile-button">Get Who's Playing at The Crocodile</button>
@@ -180,16 +179,8 @@
               console.log(data)
             });
           })
-          document.getElementById('search-artist-button').addEventListener('click', function() {
-            $.get('/search_artist', data => {
-              if (data.body) {
-                data.body = JSON.parse(data.body);
-              }
-              console.log(data)
-            });
-          })
-          document.getElementById('get-fujitsu-top-tracks-button').addEventListener('click', function() {
-            $.get('/get_fujitsu_top_tracks', data => {
+          document.getElementById('add-fujitsu-top-tracks-button').addEventListener('click', function() {
+            $.get('/add_fujitsu_top_tracks', data => {
               if (data.body) {
                 data.body = JSON.parse(data.body);
               }

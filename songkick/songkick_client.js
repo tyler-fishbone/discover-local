@@ -10,7 +10,7 @@ module.exports = {
       const venueId = await skHelper.getVenueIdFromName(skApiKey, inputVenueName)
       const performances = 
         await skHelper.getUpcomingPerformancesForVenue(skApiKey, venueId, minDate, maxDate)
-      const artists = skHelper.parseArtistsFromPerformanceData(performances);
+      const artists = skHelper.parseArtistsFromPerformanceData(performances, ['headline', 'support']);
 
       return artists
 

@@ -38,19 +38,21 @@ module.exports = {
     return promise
   },
 
-  parseArtistsFromPerformanceData: (concerts) => {
-    // billings types from songkick: 'headline', 'support'
-    const artistNames = new Set();
-    
-    concerts.forEach((concert) => {
-      concert.performance.forEach((artist) => {
-        // FIXME: add billingsToInclude
-        if(!artistNames.has(artist.displayName)) {
-          artistNames.add(artist.displayName);
-        }
+  parseArtistsFromPerformanceData: (concerts, billingsToInclude) => {
+    try {
+      // possible billings types from songkick: 'headline', 'support'
+      const artistNames = new Set();
+      concerts.forEach((concert) => {
+        concert.performance.forEach((artist) => {
+          if(!artistNames.has(artist.displayName) && billingsToInclude.includes(artist.billing)) {
+            artistNames.add(artist.displayName);
+          }
+        })
       })
-    })
-    return [...artistNames] //cast to array after
+      return [...artistNames]
+    } catch (error) {
+      return error
+    }
   }
 
 }

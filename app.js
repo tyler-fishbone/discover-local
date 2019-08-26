@@ -235,6 +235,7 @@ app.get('/get_artists_playing_at_the_crocodile', async (req, res) => {
         sk_api_key, inputVenueName, minDate, maxDate
       )
     
+    console.log({ response });
     res.send(response)
 
   } catch (error) {

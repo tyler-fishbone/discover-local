@@ -8,15 +8,49 @@ module.exports = {
       request.get(`https://api.songkick.com/api/3.0/search/venues.json?query=${inputVenueName}&apikey=${skApiKey}`,
       {},
       (error, response) => {
-        console.log({ error })
-        console.log({ response })
         if (response) {
-          return resolve(response)
+          const body = JSON.parse(response.body)
+          // FIXME: determine which venue of results is desired one
+          const firstVenue = body.resultsPage.results.venue[0]
+          return resolve(firstVenue.id)
         } else {
           reject(error)
         }
       })
     })
     return promise
+  },
+
+  getUpcomingPerformancesForVenue: async (skApiKey, venueId, minDate, maxDate) => {
+    const promise = new Promise((resolve, reject) => {
+      request.get(`https://api.songkick.com/api/3.0/venues/${venueId}/calendar.json?apikey=${skApiKey}&min_date=${minDate}&max_date=${maxDate}`,
+      {},
+      (error, response) => {
+        if(response) {
+          const body = JSON.parse(response.body)
+          const performances = body.resultsPage.results.event
+          return resolve(performances)
+        } else {
+          reject(error)
+        }
+      })
+    })
+    return promise
+  },
+
+  parseArtistsFromPerformanceData: (concerts) => {
+    // billings types from songkick: 'headline', 'support'
+    const artistNames = new Set();
+    
+    concerts.forEach((concert) => {
+      concert.performance.forEach((artist) => {
+        // FIXME: add billingsToInclude
+        if(!artistNames.has(artist.displayName)) {
+          artistNames.add(artist.displayName);
+        }
+      })
+    })
+    return [...artistNames] //cast to array after
   }
+
 }

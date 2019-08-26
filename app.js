@@ -22,6 +22,10 @@ const sk_api_key = process.env.SONGKICK_API_KEY
 
 const sptfyClient = require('./spotify/spotify_client');
 const skClient = require('./songkick/songkick_client')
+
+const oneWeekAhead = moment().add(7, 'days').format('YYYY-MM-DD')
+const threeWeeksAhead = moment().add(21, 'days').format('YYYY-MM-DD')
+
 /**
  * Generates a random string containing numbers and letters
  * @param  {number} length The length of the string
@@ -226,13 +230,11 @@ app.get('/get_artists_playing_at_the_crocodile', async (req, res) => {
   console.log(`hit /get_artists_playing_at_the_crocodile: ${counter}`)
 
   const inputVenueName = 'The Crocodile'
-  const minDate = moment().add(7, 'days').format('YYYY-MM-DD')
-  const maxDate = moment().add(21, 'days').format('YYYY-MM-DD')
 
   try {
     const response =
       await skClient.getUpcomingArtistsPlayingInVenue(
-        sk_api_key, inputVenueName, minDate, maxDate
+        sk_api_key, inputVenueName, oneWeekAhead, threeWeeksAhead
       )
     
     console.log({ response });
@@ -242,6 +244,28 @@ app.get('/get_artists_playing_at_the_crocodile', async (req, res) => {
     res.send(error)
   }
 })
+
+app.get('/add_upcoming_music_for_crocodile', async (req, res) => {
+  counter++
+  console.log(`hit /add_upcoming_music_for_crocodile: ${counter}`)
+
+  try {
+    const inputVenueName = 'The Crocodile'
+    const playlistId = '3qDz3bBo6XaswehrDoKgYy'
+    const artistNames = await skClient.getUpcomingArtistsPlayingInVenue(
+      sk_api_key, inputVenueName, oneWeekAhead, threeWeeksAhead
+    )
+    console.log(artistNames)
+    artistNames.forEach((artistName) => {
+      sptfyClient.findArtistAndAddTopTracksToPlaylist(
+        spotify_access_token, artistName,playlistId
+      )
+    })
+    res.send('check playlist to see if it worked :)')
+  } catch (error) {
+    res.send(error)
+  }
+}) 
 
 console.log('Listening on 8888');
 app.listen(8888);

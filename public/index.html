@@ -43,6 +43,9 @@
         <div>
           <button class="btn btn-default" id="get-artists-playing-at-the-crocodile-button">Get Who's Playing at The Crocodile</button>
         </div>
+        <div>
+          <button class="btn btn-default" id="add-upcoming-music-for-crocodile-button">Add Upcoming Music at The Crocodile</button>
+        </div>
       </div>
     </div>
 
@@ -189,6 +192,14 @@
           })
           document.getElementById('get-artists-playing-at-the-crocodile-button').addEventListener('click', function() {
             $.get('/get_artists_playing_at_the_crocodile', data => {
+              if (data.body) {
+                data.body = JSON.parse(data.body);
+              }
+              console.log(data)
+            });
+          })
+          document.getElementById('add-upcoming-music-for-crocodile-button').addEventListener('click', function() {
+            $.get('/add_upcoming_music_for_crocodile', data => {
               if (data.body) {
                 data.body = JSON.parse(data.body);
               }

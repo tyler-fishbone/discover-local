@@ -34,7 +34,7 @@ module.exports = {
     return promise;
   },
 
-  getArtistTopTracks: (token, artistId, numTracks = 2) => {
+  getArtistTopTracks: (token, artistId, numTracks = 1) => {
     const promise = new Promise((resolve, reject) => {
       request.get(
         `https://api.spotify.com/v1/artists/${artistId}/top-tracks?market=us`, {

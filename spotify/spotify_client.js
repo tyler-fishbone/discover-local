@@ -13,15 +13,15 @@ module.exports = {
     try {
 
       const artistId = await sptfyHelper.getArtistIdByName(token, artistName)
-      const topTracks = await sptfyHelper.getArtistTopTracks(token, artistId);
+      const topTracks = await sptfyHelper.getArtistTopTracks(token, artistId)
       const trackUris = sptfyHelper.getTrackUrisFromTrackObjects(topTracks)
-      const addTracksToPlaylistResponse = 
-        await sptfyHelper.addTracksToPlaylist(token, trackUris, playlistId);
+      await sptfyHelper.addTracksToPlaylist(token, trackUris, playlistId)
 
-      return addTracksToPlaylistResponse;
+      return 1
 
     } catch (error) {
-      return error
+      console.log(`${artistName} ${error}`);
+      return 0
     }
   }
 

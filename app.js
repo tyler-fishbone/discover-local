@@ -4,24 +4,25 @@
  * https://developer.spotify.com/web-api/authorization-guide/#authorization_code_flow
  */
 
-const express = require('express'); // Express web server framework
-const request = require('request'); // "Request" library
-const cors = require('cors');
-const querystring = require('querystring');
-const cookieParser = require('cookie-parser');
-const moment = require('moment');
+const express = require('express') // Express web server framework
+const request = require('request') // "Request" library
+const cors = require('cors')
+const querystring = require('querystring')
+const cookieParser = require('cookie-parser')
+const moment = require('moment')
 const dotenv = require('dotenv')
 dotenv.config();
 
-const client_id = process.env.CLIENT_ID; // Your client id
-const client_secret = process.env.CLIENT_SECRET; // Your secret
-const redirect_uri = process.env.REDIRECT_URI; // Your redirect uri
-let spotify_access_token = '';
+const client_id = process.env.CLIENT_ID // Your client id
+const client_secret = process.env.CLIENT_SECRET // Your secret
+const redirect_uri = process.env.REDIRECT_URI // Your redirect uri
+let spotify_access_token = ''
 
 const sk_api_key = process.env.SONGKICK_API_KEY
 
-const sptfyClient = require('./spotify/spotify_client');
+const sptfyClient = require('./spotify/spotify_client')
 const skClient = require('./songkick/songkick_client')
+const skHelper = require('./songkick/songkick_helper')
 
 const oneWeekAhead = moment().add(7, 'days').format('YYYY-MM-DD')
 const threeWeeksAhead = moment().add(21, 'days').format('YYYY-MM-DD')
@@ -261,11 +262,30 @@ app.get('/add_upcoming_music_for_crocodile', async (req, res) => {
         spotify_access_token, artistName,playlistId
       )
     })
-    res.send('check playlist to see if it worked :)')
+    res.send({
+      artistNames,
+      truth: 'likely not all artists were found',
+    })
   } catch (error) {
     res.send(error)
   }
-}) 
+})
+
+app.get('/search_venue', async (req, res) => {
+  counter++
+  console.log(`hit /search_venue: ${counter}`)
+
+  try {
+    const venueName = req.query.venue_name;
+    const venueId = await skHelper.getVenueIdFromName(sk_api_key, venueName)
+    console.log(venueName)
+    res.send({venueId})
+    
+  } catch(error) {
+    res.send(error)
+  }
+
+})
 
 console.log('Listening on 8888');
 app.listen(8888);

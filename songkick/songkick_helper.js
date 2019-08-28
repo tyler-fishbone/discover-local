@@ -10,6 +10,9 @@ module.exports = {
       (error, response) => {
         if (response) {
           const body = JSON.parse(response.body)
+          if (body.resultsPage.totalEntries < 1) {
+            return reject('No venues found by that name')
+          }
           // FIXME: determine which venue of results is desired one
           const firstVenue = body.resultsPage.results.venue[0]
           return resolve(firstVenue.id)

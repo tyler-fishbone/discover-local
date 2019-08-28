@@ -46,6 +46,14 @@
         <div>
           <button class="btn btn-default" id="add-upcoming-music-for-crocodile-button">Add Upcoming Music at The Crocodile</button>
         </div>
+        <div>
+          <form id="search-venue-form" name="search-venue-form" action="">
+            <input id="search-venue-input-box" type="text" placeholder="EX: The Crocodile"/>
+            <button class="btn btn-default" id="search-venue-button" type="submit">
+              search-venue-button
+            </button>
+          </form>
+        </div>
       </div>
     </div>
 
@@ -200,6 +208,17 @@
           })
           document.getElementById('add-upcoming-music-for-crocodile-button').addEventListener('click', function() {
             $.get('/add_upcoming_music_for_crocodile', data => {
+              if (data.body) {
+                data.body = JSON.parse(data.body);
+              }
+              console.log(data)
+            });
+          })
+          document.getElementById('search-venue-form').addEventListener('submit', function(event) {
+            event.preventDefault()
+            const venueName = document.getElementById('search-venue-input-box').value
+            console.log(venueName)
+            $.get(`/search_venue?venue_name=${venueName}`, data => {
               if (data.body) {
                 data.body = JSON.parse(data.body);
               }

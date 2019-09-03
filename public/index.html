@@ -50,7 +50,15 @@
           <form id="search-venue-form" name="search-venue-form" action="">
             <input id="search-venue-input-box" type="text" placeholder="EX: The Crocodile"/>
             <button class="btn btn-default" id="search-venue-button" type="submit">
-              search-venue-button
+              search-venue
+            </button>
+          </form>
+        </div>
+        <div>
+          <form id="add-venue-playlist-form" name="add-venue-playlist-form" action="">
+            <input id="add-venue-playlist-input-box" type="text" placeholder="EX: The Crocodile"/>
+            <button class="btn btn-default" id="add-venue-playlist-button" type="submit">
+              add-venue-playlist
             </button>
           </form>
         </div>
@@ -219,6 +227,17 @@
             const venueName = document.getElementById('search-venue-input-box').value
             console.log(venueName)
             $.get(`/search_venue?venue_name=${venueName}`, data => {
+              if (data.body) {
+                data.body = JSON.parse(data.body);
+              }
+              console.log(data)
+            });
+          })
+          document.getElementById('add-venue-playlist-form').addEventListener('submit', function(event) {
+            event.preventDefault()
+            const venueName = document.getElementById('add-venue-playlist-input-box').value
+            console.log(venueName)
+            $.get(`/add_venue_playlist?venue_name=${venueName}`, data => {
               if (data.body) {
                 data.body = JSON.parse(data.body);
               }

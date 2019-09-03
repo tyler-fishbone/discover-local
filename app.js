@@ -277,9 +277,25 @@ app.get('/search_venue', async (req, res) => {
 
   try {
     const venueName = req.query.venue_name;
-    const venueId = await skHelper.getVenueIdFromName(sk_api_key, venueName)
+    const venueData = await skHelper.getVenueDataFromName(sk_api_key, venueName)
     console.log(venueName)
-    res.send({venueId})
+    res.send({venueData})
+    
+  } catch(error) {
+    res.send(error)
+  }
+
+})
+
+app.get('/add_venue_playlist', async (req, res) => {
+  counter++
+  console.log(`hit /add_venue_playlist: ${counter}`)
+
+  try {
+    const venueName = req.query.venue_name;
+    const venueData = await skHelper.getVenueDataFromName(sk_api_key, venueName)
+    console.log(venueName)
+    res.send({venueData})
     
   } catch(error) {
     res.send(error)

@@ -24,6 +24,27 @@ module.exports = {
     return promise
   },
 
+  getVenueDataFromName: (skApiKey, inputVenueName) => {
+    const promise = new Promise((resolve, reject) => {
+      request.get(`https://api.songkick.com/api/3.0/search/venues.json?query=${inputVenueName}&apikey=${skApiKey}`,
+      {},
+      (error, response) => {
+        if (response) {
+          const body = JSON.parse(response.body)
+          if (body.resultsPage.totalEntries < 1) {
+            return reject('No venues found by that name')
+          }
+          // FIXME: determine which venue of results is desired one
+          const firstVenue = body.resultsPage.results.venue[0]
+          return resolve(firstVenue)
+        } else {
+          reject(error)
+        }
+      })
+    })
+    return promise
+  },
+
   getUpcomingPerformancesForVenue: async (skApiKey, venueId, minDate, maxDate) => {
     const promise = new Promise((resolve, reject) => {
       request.get(`https://api.songkick.com/api/3.0/venues/${venueId}/calendar.json?apikey=${skApiKey}&min_date=${minDate}&max_date=${maxDate}`,

@@ -17,5 +17,17 @@ module.exports = {
     } catch (error) {
       return error
     }
+  },
+
+  // best to have a function that uses the id? names it as such?
+  getUpcomingArtistsPlayingInMetroArea: async (skApiKey, metroId, minDate, maxDate) => {
+    try {
+      const performances =
+        await skHelper.getUpcomingPerformancesForMetroArea(skApiKey, metroId, minDate, maxDate);
+        
+      return performances
+    } catch (error) {
+      return error
+    }
   }
 }

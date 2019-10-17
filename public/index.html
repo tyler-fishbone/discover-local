@@ -62,6 +62,9 @@
             </button>
           </form>
         </div>
+        <div>
+          <button class="btn btn-default" id="update_genre_playlist_with_upcoming_show_in_metro_area">/update_genre_playlist_with_upcoming_show_in_metro_area</button>
+        </div>
       </div>
     </div>
 
@@ -216,6 +219,14 @@
           })
           document.getElementById('add-upcoming-music-for-crocodile-button').addEventListener('click', function() {
             $.get('/add_upcoming_music_for_crocodile', data => {
+              if (data.body) {
+                data.body = JSON.parse(data.body);
+              }
+              console.log(data)
+            });
+          })
+          document.getElementById('update_genre_playlist_with_upcoming_show_in_metro_area').addEventListener('click', function() {
+            $.get('/update_genre_playlist_with_upcoming_show_in_metro_area', data => {
               if (data.body) {
                 data.body = JSON.parse(data.body);
               }

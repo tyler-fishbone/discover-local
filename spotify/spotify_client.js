@@ -17,6 +17,7 @@ module.exports = {
       const trackUris = sptfyHelper.getTrackUrisFromTrackObjects(topTracks)
       await sptfyHelper.addTracksToPlaylist(token, trackUris, playlistId)
 
+      // FIXME: change the below to boolean values and return those
       return 1
 
     } catch (error) {

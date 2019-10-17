@@ -7,6 +7,25 @@ module.exports = {
     return inputString + '!';
   },
 
+  getUser: (token) => {
+    let promise = new Promise((resolve, reject) => {
+      request.get(`https://api.spotify.com/v1/me`, {
+        headers: {
+          'Authorization': `Bearer ${token}`
+        },
+      }, 
+      (error, response) => {
+        if (response) {
+          const body = JSON.parse(response.body)
+          resolve (body)
+        } else {
+          reject(error)
+        }
+      })
+    })
+    return promise
+  },
+
   getArtistIdByName: (token, inputName) => {
     let promise = new Promise((resolve, reject) => {
       request.get(`https://api.spotify.com/v1/search?q=${inputName}&type=artist`, {
@@ -71,6 +90,61 @@ module.exports = {
       })
     })
     return promise;
+  },
+
+  createSpotifyPlaylist: (token, userId, name, description) => {
+    const promise = new Promise((resolve, reject) => {
+      request.post(`https://api.spotify.com/v1/users/${userId}/playlists`, {
+        'auth': {
+          'bearer': token,
+        },
+        'Content-Type': 'application/json',
+        'body': JSON.stringify({
+          name,
+          description,
+        })
+      }, (error, response) => {
+        if(response) {
+          resolve(response);
+        } else {
+          reject(error)
+        }
+      })
+    })
+    return promise
+  },
+
+  translateVenueForUseInSpotify: (venue) => {
+    try {
+      return {
+        displayName: venue.displayName,
+        description: venue.description,
+        location: {
+          street: venue.street,
+          city: venue.city.displayName,
+          zipCode: venue.zip,
+          state: venue.city.state.displayName,
+          country: venue.city.country.displayName,
+          lat: venue.lat,
+          lng: venue.lng,
+          phone: venue.phone,
+        },
+        website: venue.website,
+        capacity: venue.capacity,
+      }
+    } catch (error) {
+      return `error in translateVenueForUseInSpotify ${error}`
+    }
+  },
+
+  buildPlaylistDescription: (inputVenue) => {
+    
+    let venueDescription = ''
+
+    venueDescription += inputVenue.description
+    venueDescription += ` ${inputVenue.website}`
+
+    return venueDescription
   },
 
   getTrackUrisFromTrackObjects: (trackObjects) => {

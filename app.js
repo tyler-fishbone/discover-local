@@ -21,11 +21,14 @@ let spotify_access_token = ''
 const sk_api_key = process.env.SONGKICK_API_KEY
 
 const sptfyClient = require('./spotify/spotify_client')
+const spHelper = require('./spotify/spotify_helper')
 const skClient = require('./songkick/songkick_client')
 const skHelper = require('./songkick/songkick_helper')
 
+const now = moment().format('YYYY-MM-DD');
 const oneWeekAhead = moment().add(7, 'days').format('YYYY-MM-DD')
 const threeWeeksAhead = moment().add(21, 'days').format('YYYY-MM-DD')
+const thirtyDaysAhead = moment().add(30, 'days').format('YYYY-MM-DD')
 
 /**
  * Generates a random string containing numbers and letters
@@ -172,7 +175,10 @@ app.get('/get_song', (req, res) => {
       'bearer': spotify_access_token,
     }
   }, (error, response, body) => {
-    res.send(response);
+    if (error) {
+      return res.send(error)
+    }
+    return res.send(response);
   });
 })
 
@@ -259,7 +265,7 @@ app.get('/add_upcoming_music_for_crocodile', async (req, res) => {
     console.log(artistNames)
     artistNames.forEach((artistName) => {
       sptfyClient.findArtistAndAddTopTracksToPlaylist(
-        spotify_access_token, artistName,playlistId
+        spotify_access_token, artistName, playlistId
       )
     })
     res.send({
@@ -293,14 +299,39 @@ app.get('/add_venue_playlist', async (req, res) => {
 
   try {
     const venueName = req.query.venue_name;
-    const venueData = await skHelper.getVenueDataFromName(sk_api_key, venueName)
     console.log(venueName)
-    res.send({venueData})
+    const venueDataSongkick = await skHelper.getVenueDataFromName(sk_api_key, venueName)
+    // check if user already has playlist... no nevermind i'll just make a ton
+    // or put that in later
     
+    const venueDataSpotify = spHelper.translateVenueForUseInSpotify(venueDataSongkick)
+    const playlistDescription = spHelper.buildPlaylistDescription(venueDataSpotify);
+    const userId = await spHelper.getUser(spotify_access_token).id
+    const createPlaylistResp = await spHelper.createSpotifyPlaylist(
+      spotify_access_token, userId, venueDataSpotify.displayName, playlistDescription
+    )
+
+    const result = createPlaylistResp;
+    res.send(result) 
   } catch(error) {
     res.send(error)
   }
+})
 
+app.get('/update_genre_playlist_with_upcoming_show_in_metro_area', async (req, res) => {
+  counter++
+  console.log(`hit /update_genre_playlist_with_upcoming_show_in_metro_area: ${counter}`)
+  const playlistId = '3uBHtXE5yY7aB61Xc9Npcg'
+  const metroId = 2846
+
+  try {
+    const performances = await skClient.getUpcomingArtistsPlayingInMetroArea(
+      sk_api_key, metroId, now, thirtyDaysAhead
+    )
+    res.send(performances)
+  } catch(error) {
+    res.send(error)
+  }
 })
 
 console.log('Listening on 8888');

@@ -1,11 +1,11 @@
 const request = require('request');
 
 module.exports = {
-  baseUrl: 'https://api.songkick.com/api/3.0',
+  baseUrl: 'http://api.songkick.com/api/3.0',
 
   getVenueIdFromName: (skApiKey, inputVenueName) => {
     const promise = new Promise((resolve, reject) => {
-      request.get(`https://api.songkick.com/api/3.0/search/venues.json?query=${inputVenueName}&apikey=${skApiKey}`,
+      request.get(`http://api.songkick.com/api/3.0/search/venues.json?query=${inputVenueName}&apikey=${skApiKey}`,
       {},
       (error, response) => {
         if (response) {
@@ -26,7 +26,7 @@ module.exports = {
 
   getVenueDataFromName: (skApiKey, inputVenueName) => {
     const promise = new Promise((resolve, reject) => {
-      request.get(`https://api.songkick.com/api/3.0/search/venues.json?query=${inputVenueName}&apikey=${skApiKey}`,
+      request.get(`http://api.songkick.com/api/3.0/search/venues.json?query=${inputVenueName}&apikey=${skApiKey}`,
       {},
       (error, response) => {
         if (response) {
@@ -47,7 +47,26 @@ module.exports = {
 
   getUpcomingPerformancesForVenue: async (skApiKey, venueId, minDate, maxDate) => {
     const promise = new Promise((resolve, reject) => {
-      request.get(`https://api.songkick.com/api/3.0/venues/${venueId}/calendar.json?apikey=${skApiKey}&min_date=${minDate}&max_date=${maxDate}`,
+      request.get(`http://api.songkick.com/api/3.0/venues/${venueId}/calendar.json?apikey=${skApiKey}&min_date=${minDate}&max_date=${maxDate}`,
+      {},
+      (error, response) => {
+        if(response) {
+          const body = JSON.parse(response.body)
+          const performances = body.resultsPage.results.event
+          return resolve(performances)
+        } else {
+          reject(error)
+        }
+      })
+    })
+    return promise
+  },
+
+  getUpcomingPerformancesForMetroArea: async (skApiKey, metroId, minDate, maxDate) => {
+    // refactor to make multiple calls 
+    const pageNum = 1
+    const promise = new Promise((resolve, reject) => {
+      request.get(`http://api.songkick.com/api/3.0/metro_areas/${metroId}/calendar.json?apikey=${skApiKey}&min_date=${minDate}&max_date=${maxDate}&page=${pageNum}`,
       {},
       (error, response) => {
         if(response) {

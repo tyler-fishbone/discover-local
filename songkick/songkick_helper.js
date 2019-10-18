@@ -63,7 +63,7 @@ module.exports = {
   },
 
   getUpcomingPerformancesForMetroArea: async (skApiKey, metroId, minDate, maxDate) => {
-    // refactor to make multiple calls 
+    // TODO: make paginated call that appends all artists until there are no more
     const pageNum = 1
     const promise = new Promise((resolve, reject) => {
       request.get(`http://api.songkick.com/api/3.0/metro_areas/${metroId}/calendar.json?apikey=${skApiKey}&min_date=${minDate}&max_date=${maxDate}&page=${pageNum}`,

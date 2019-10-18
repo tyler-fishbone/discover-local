@@ -33,21 +33,29 @@ module.exports = {
           'bearer': token,
         },
       }, (error, response) => {
-        const body = JSON.parse(response.body);
-        if (body.artists
-          && body.artists.items) {
-          // fixme: if two artists have the same name this returns the first
-          // better to return the one who is most popular
-          const artist = body.artists.items.find(artist => {
-            return artist.name.toLowerCase() === inputName.toLowerCase();
-          })
-          if (artist) {
-            return resolve(artist.id);
+        if(response && response.body) {          
+          const body = JSON.parse(response.body);
+          if (body.artists
+            && body.artists.items
+            && body.artists.items.length > 0) {
+            // fixme: if two artists have the same name this returns the first
+            // better to return the one who is most popular
+            const artist = body.artists.items.find(artist => {
+              return artist.name.toLowerCase() === inputName.toLowerCase();
+            })
+            if (artist) {
+              resolve(artist.id);
+            } else {
+              reject(`${inputName} not found on spotify`)
+              return
+            }
           } else {
-            reject('artist not found')
+            reject(`${inputName} not found on spotify`)
+            return
           }
         }
-        reject(`probably auth error: ${error}`);
+        reject(`probably auth error: ${error}`)
+        return;
       })
     })
     return promise;
@@ -59,12 +67,15 @@ module.exports = {
         `https://api.spotify.com/v1/artists/${artistId}/top-tracks?market=us`, {
           'auth': { 'bearer': token },
         }, (error, response) => {
-          const body = JSON.parse(response.body)
-          if (body) {
-            const topTracks = body.tracks.slice(0, numTracks);
-            resolve(topTracks)
-          } else {
-            reject(error)
+          if (response.body) {
+            const body = JSON.parse(response.body)
+            if (body.tracks) {
+              const topTracks = body.tracks.slice(0, numTracks);
+              resolve(topTracks)
+            } else {
+              reject(error)
+              return
+            }
           }
         })
       })
@@ -86,6 +97,7 @@ module.exports = {
           resolve(response);
         } else {
           reject(error)
+          return
         }
       })
     })

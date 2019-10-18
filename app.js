@@ -252,31 +252,6 @@ app.get('/get_artists_playing_at_the_crocodile', async (req, res) => {
   }
 })
 
-app.get('/add_upcoming_music_for_crocodile', async (req, res) => {
-  counter++
-  console.log(`hit /add_upcoming_music_for_crocodile: ${counter}`)
-
-  try {
-    const inputVenueName = 'The Crocodile'
-    const playlistId = '3qDz3bBo6XaswehrDoKgYy'
-    const artistNames = await skClient.getUpcomingArtistsPlayingInVenue(
-      sk_api_key, inputVenueName, oneWeekAhead, threeWeeksAhead
-    )
-    console.log(artistNames)
-    artistNames.forEach((artistName) => {
-      sptfyClient.findArtistAndAddTopTracksToPlaylist(
-        spotify_access_token, artistName, playlistId
-      )
-    })
-    res.send({
-      artistNames,
-      truth: 'likely not all artists were found',
-    })
-  } catch (error) {
-    res.send(error)
-  }
-})
-
 app.get('/search_venue', async (req, res) => {
   counter++
   console.log(`hit /search_venue: ${counter}`)
@@ -318,6 +293,31 @@ app.get('/add_venue_playlist', async (req, res) => {
   }
 })
 
+app.get('/add_upcoming_music_for_crocodile', async (req, res) => {
+  counter++
+  console.log(`hit /add_upcoming_music_for_crocodile: ${counter}`)
+
+  try {
+    const inputVenueName = 'The Crocodile'
+    const playlistId = '3qDz3bBo6XaswehrDoKgYy'
+    const artistNames = await skClient.getUpcomingArtistsPlayingInVenue(
+      sk_api_key, inputVenueName, oneWeekAhead, threeWeeksAhead
+    )
+    console.log(artistNames)
+    artistNames.forEach((artistName) => {
+      sptfyClient.findArtistAndAddTopTracksToPlaylist(
+        spotify_access_token, artistName, playlistId
+      )
+    })
+    res.send({
+      artistNames,
+      truth: 'likely not all artists were found',
+    })
+  } catch (error) {
+    res.send(error)
+  }
+})
+
 app.get('/update_genre_playlist_with_upcoming_show_in_metro_area', async (req, res) => {
   counter++
   console.log(`hit /update_genre_playlist_with_upcoming_show_in_metro_area: ${counter}`)
@@ -325,10 +325,22 @@ app.get('/update_genre_playlist_with_upcoming_show_in_metro_area', async (req, r
   const metroId = 2846
 
   try {
-    const performances = await skClient.getUpcomingArtistsPlayingInMetroArea(
+    const artistNames = await skClient.getUpcomingArtistsPlayingInMetroArea(
       sk_api_key, metroId, now, thirtyDaysAhead
     )
-    res.send(performances)
+    console.log(artistNames)
+    // TODO: filter artist names by genre
+    artistNames.forEach((artistName) => {
+      // how to make each call wait for the one before to finish?
+      sptfyClient.findArtistAndAddTopTracksToPlaylist(
+        spotify_access_token, artistName, playlistId
+      )
+    })
+
+    res.send({
+      artistNames,
+      message: `added ${artistNames.length} artists to playlistId: ${playlistId}`,
+    })
   } catch(error) {
     res.send(error)
   }
